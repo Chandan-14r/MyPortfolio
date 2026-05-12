@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="600" viewBox="0 0 960 600" role="img" aria-labelledby="title desc">
+  <title id="title">Nova Productivity Agent preview</title>
+  <desc id="desc">A productivity automation workflow connecting Gmail, Zoom, Telegram, NLP, and task routing services.</desc>
+  <rect width="960" height="600" fill="#fffdf8"/>
+  <rect x="72" y="70" width="816" height="460" rx="18" fill="#ffffff" stroke="#d7e0e5" stroke-width="2"/>
+  <text x="118" y="132" fill="#141821" font-family="Arial, sans-serif" font-size="30" font-weight="800">Nova Productivity Agent</text>
+  <rect x="118" y="184" width="150" height="92" rx="12" fill="#eef7f4" stroke="#087f8c"/>
+  <text x="154" y="226" fill="#065f68" font-family="Arial, sans-serif" font-size="20" font-weight="700">Gmail</text>
+  <text x="144" y="252" fill="#697386" font-family="Arial, sans-serif" font-size="15">Email triage</text>
+  <rect x="118" y="330" width="150" height="92" rx="12" fill="#fff3e4" stroke="#c98720"/>
+  <text x="156" y="372" fill="#9c6418" font-family="Arial, sans-serif" font-size="20" font-weight="700">Zoom</text>
+  <text x="140" y="398" fill="#697386" font-family="Arial, sans-serif" font-size="15">Meeting notes</text>
+  <rect x="692" y="184" width="150" height="92" rx="12" fill="#ffe8df" stroke="#d85f44"/>
+  <text x="728" y="226" fill="#b64b34" font-family="Arial, sans-serif" font-size="20" font-weight="700">Telegram</text>
+  <text x="724" y="252" fill="#697386" font-family="Arial, sans-serif" font-size="15">Bot alerts</text>
+  <rect x="400" y="244" width="180" height="118" rx="14" fill="#20283a"/>
+  <text x="444" y="292" fill="#ffffff" font-family="Arial, sans-serif" font-size="22" font-weight="700">NLP Core</text>
+  <text x="434" y="324" fill="#b9ffe8" font-family="Arial, sans-serif" font-size="15">Intent routing</text>
+  <path d="M268 230 H400" stroke="#141821" stroke-width="4" stroke-linecap="round"/>
+  <path d="M268 376 C320 376 342 330 400 314" fill="none" stroke="#141821" stroke-width="4" stroke-linecap="round"/>
+  <path d="M580 302 C634 298 646 230 692 230" fill="none" stroke="#141821" stroke-width="4" stroke-linecap="round"/>
+  <path d="M386 220 L400 230 L386 240" fill="none" stroke="#141821" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M678 220 L692 230 L678 240" fill="none" stroke="#141821" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="342" y="438" width="296" height="52" rx="12" fill="#eef7f4" stroke="#087f8c"/>
+  <text x="388" y="472" fill="#065f68" font-family="Arial, sans-serif" font-size="20" font-weight="700">80% task automation</text>
+</svg>
