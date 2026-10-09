@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 import { skillCategories } from "@/lib/portfolio-data";
 import { useApp } from "@/providers/AppProvider";
 import { Reveal } from "@/components/primitives/Reveal";
@@ -17,33 +19,47 @@ export function CyberSkills() {
   const row1 = allSkills.slice(0, half);
   const row2 = allSkills.slice(half);
 
-  useEffect(() => {
+  useGSAP(() => {
     if (reducedMotion || isTouch || !containerRef.current) return;
-    
     const container = containerRef.current;
     
-    const handleEnter = () => {
-      const animations = container.getAnimations({ subtree: true });
-      animations.forEach(anim => {
-        anim.playbackRate = 0.2;
-      });
-    };
-    
-    const handleLeave = () => {
-      const animations = container.getAnimations({ subtree: true });
-      animations.forEach(anim => {
-        anim.playbackRate = 1.0;
+    const handleMouseMove = (e: MouseEvent) => {
+      const pills = container.querySelectorAll('.skill-pill');
+      const mouseX = e.clientX;
+      const mouseY = e.clientY;
+      
+      pills.forEach((pill) => {
+        const rect = pill.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        
+        // Calculate distance from mouse to pill center
+        const distance = Math.sqrt(Math.pow(mouseX - centerX, 2) + Math.pow(mouseY - centerY, 2));
+        
+        // Scale based on distance (max distance 200px)
+        const maxDist = 200;
+        let scale = 1;
+        if (distance < maxDist) {
+          scale = 1 + (1 - distance / maxDist) * 0.5; // Max scale 1.5
+        }
+        
+        gsap.to(pill, { scale, duration: 0.2, ease: "power2.out", overwrite: "auto" });
       });
     };
 
-    container.addEventListener("mouseenter", handleEnter);
-    container.addEventListener("mouseleave", handleLeave);
+    const handleMouseLeave = () => {
+      const pills = container.querySelectorAll('.skill-pill');
+      gsap.to(pills, { scale: 1, duration: 0.4, ease: "power2.out", overwrite: "auto" });
+    };
+
+    container.addEventListener("mousemove", handleMouseMove);
+    container.addEventListener("mouseleave", handleMouseLeave);
 
     return () => {
-      container.removeEventListener("mouseenter", handleEnter);
-      container.removeEventListener("mouseleave", handleLeave);
+      container.removeEventListener("mousemove", handleMouseMove);
+      container.removeEventListener("mouseleave", handleMouseLeave);
     };
-  }, [reducedMotion, isTouch]);
+  }, { scope: containerRef, dependencies: [reducedMotion, isTouch] });
 
   return (
     <section className="relative w-full py-24 bg-bg overflow-hidden" id="skills">
@@ -62,7 +78,7 @@ export function CyberSkills() {
           {row1.map((skill, i) => (
             <div 
               key={`r1-${i}`}
-              className="flex items-center gap-3 px-6 py-3 rounded-pill bg-bg-2 border border-border mx-3 whitespace-nowrap"
+              className="skill-pill flex items-center gap-3 px-6 py-3 rounded-pill bg-bg-2 border border-border mx-3 whitespace-nowrap will-change-transform origin-center"
             >
               <div className="w-2 h-2 rounded-full" style={{ backgroundColor: skill.color }} />
               <span className="font-mono text-sm text-fg">{skill.name}</span>
@@ -74,7 +90,7 @@ export function CyberSkills() {
           {row2.map((skill, i) => (
             <div 
               key={`r2-${i}`}
-              className="flex items-center gap-3 px-6 py-3 rounded-pill bg-bg-2 border border-border mx-3 whitespace-nowrap"
+              className="skill-pill flex items-center gap-3 px-6 py-3 rounded-pill bg-bg-2 border border-border mx-3 whitespace-nowrap will-change-transform origin-center"
             >
               <div className="w-2 h-2 rounded-full" style={{ backgroundColor: skill.color }} />
               <span className="font-mono text-sm text-fg">{skill.name}</span>

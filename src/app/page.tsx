@@ -17,6 +17,7 @@ import { Work } from "@/components/sections/Work";
 import { Journey } from "@/components/sections/Journey";
 import { Contact } from "@/components/sections/Contact";
 import { Outro } from "@/components/sections/Outro";
+import { DistortionCanvas } from "@/components/primitives/DistortionCanvas";
 
 export default function Home() {
   const [gatePassed, setGatePassed] = useState(false);
@@ -54,6 +55,7 @@ export default function Home() {
         <>
           <ScrollProgress />
           <Cursor />
+          <DistortionCanvas />
           <Nav />
           <Drawer />
           <CommandPalette />

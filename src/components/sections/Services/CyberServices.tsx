@@ -6,9 +6,36 @@ import { services } from "@/lib/portfolio-data";
 import { ease, spring } from "@/lib/motion";
 import { Reveal } from "@/components/primitives/Reveal";
 import { cn } from "@/lib/cn";
+import { useApp } from "@/providers/AppProvider";
 
 export function CyberServices() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [origins, setOrigins] = useState<Record<number, "top" | "bottom">>({});
+  const { reducedMotion } = useApp();
+
+  const handleEnter = (e: React.MouseEvent, idx: number) => {
+    if (reducedMotion) {
+      setOpenIndex(idx);
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const origin = y < rect.height / 2 ? "top" : "bottom";
+    setOrigins(prev => ({ ...prev, [idx]: origin }));
+    setOpenIndex(idx);
+  };
+
+  const handleLeave = (e: React.MouseEvent, idx: number) => {
+    if (reducedMotion) {
+      setOpenIndex(null);
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const origin = y < rect.height / 2 ? "top" : "bottom";
+    setOrigins(prev => ({ ...prev, [idx]: origin }));
+    setOpenIndex(null);
+  };
 
   return (
     <section className="relative w-full py-24 bg-bg border-t border-border" id="services">
@@ -20,17 +47,20 @@ export function CyberServices() {
         <div className="flex flex-col border-t border-border">
           {services.map((service, idx) => {
             const isOpen = openIndex === idx;
+            const origin = origins[idx] || "center";
             
             return (
               <div 
                 key={service.id}
-                className="group relative border-b border-border overflow-hidden"
-                onMouseEnter={() => setOpenIndex(idx)}
-                onMouseLeave={() => setOpenIndex(null)}
+                className="group relative border-b border-border overflow-hidden cursor-none"
+                data-cursor="hover"
+                onMouseEnter={(e) => handleEnter(e, idx)}
+                onMouseLeave={(e) => handleLeave(e, idx)}
               >
                 {/* Wipe-up inversion background */}
                 <motion.div
-                  className="absolute inset-0 bg-accent origin-bottom z-0"
+                  className="absolute inset-0 bg-accent z-0"
+                  style={{ transformOrigin: origin }}
                   initial={{ scaleY: 0 }}
                   animate={{ scaleY: isOpen ? 1 : 0 }}
                   transition={{ duration: 0.4, ease: ease.out }}
@@ -42,12 +72,15 @@ export function CyberServices() {
                   onClick={() => setOpenIndex(isOpen ? null : idx)}
                 >
                   <div className="flex items-center gap-8">
-                    <span className={cn(
-                      "font-mono text-sm transition-colors duration-300",
-                      isOpen ? "text-on-accent" : "text-muted"
-                    )}>
+                    <motion.span 
+                      animate={isOpen ? { scale: 1.2, x: 10 } : { scale: 1, x: 0 }}
+                      transition={spring.snappy}
+                      className={cn(
+                        "font-mono text-sm transition-colors duration-300",
+                        isOpen ? "text-on-accent" : "text-muted"
+                      )}>
                       0{idx + 1}
-                    </span>
+                    </motion.span>
                     <h3 className={cn(
                       "text-2xl md:text-4xl font-bold uppercase transition-colors duration-300",
                       isOpen ? "text-on-accent" : "text-fg"

@@ -3,11 +3,15 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { projects, Project } from "@/lib/portfolio-data";
 import { useApp } from "@/providers/AppProvider";
 import { Reveal } from "@/components/primitives/Reveal";
 import { Tilt } from "@/components/primitives/Tilt";
 import { Modal } from "@/components/primitives/Modal";
+import { globalWebGLState } from "@/components/primitives/DistortionCanvas";
 
 function CyberProject({ project, index, onOpen }: { project: Project; index: number; onOpen: () => void }) {
   const { reducedMotion } = useApp();
@@ -22,7 +26,7 @@ function CyberProject({ project, index, onOpen }: { project: Project; index: num
   const isEven = index % 2 === 0;
 
   return (
-    <div ref={ref} className="group relative grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center border-b border-border py-16 lg:py-24">
+    <div ref={ref} className="cyber-project-card group relative grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center border-b border-border py-16 lg:py-24 bg-bg w-full">
       {/* Content */}
       <div className={`lg:col-span-5 flex flex-col gap-6 ${isEven ? 'lg:order-1' : 'lg:order-2'}`}>
         <Reveal direction={isEven ? "right" : "left"}>
@@ -92,7 +96,23 @@ function CyberProject({ project, index, onOpen }: { project: Project; index: num
               </div>
             </div>
             {/* Inner image */}
-            <div className="relative flex-1 overflow-hidden cursor-pointer" onClick={onOpen}>
+            <div 
+              className="relative flex-1 overflow-hidden cursor-none" 
+              data-cursor="view" 
+              onClick={onOpen}
+              onMouseEnter={(e) => {
+                globalWebGLState.activeUrl = project.image;
+                globalWebGLState.activeRect = e.currentTarget.getBoundingClientRect();
+              }}
+              onMouseMove={(e) => {
+                globalWebGLState.activeRect = e.currentTarget.getBoundingClientRect();
+                globalWebGLState.velocity = Math.abs(e.movementX) + Math.abs(e.movementY);
+              }}
+              onMouseLeave={() => {
+                globalWebGLState.activeUrl = null;
+                globalWebGLState.velocity = 0;
+              }}
+            >
               <motion.div 
                 className="absolute inset-[-10%]"
                 style={!reducedMotion ? { y: imgY } : {}}
@@ -101,8 +121,9 @@ function CyberProject({ project, index, onOpen }: { project: Project; index: num
                   src={project.image}
                   alt={project.title}
                   fill
-                  className="object-cover object-top"
+                  className="object-cover object-top opacity-0 transition-opacity duration-300" // hide real image to let canvas show, or keep it as fallback
                   sizes="(max-width: 1024px) 100vw, 60vw"
+                  onLoad={(e) => (e.currentTarget.style.opacity = '1')} // Fallback if webgl fails
                 />
               </motion.div>
               {/* Overlay */}
@@ -117,15 +138,70 @@ function CyberProject({ project, index, onOpen }: { project: Project; index: num
 
 export function CyberWork() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const { reducedMotion } = useApp();
+
+  useGSAP(() => {
+    if (reducedMotion || !containerRef.current || !progressRef.current) return;
+
+    let mm = gsap.matchMedia();
+
+    mm.add("(min-width: 1024px)", () => {
+      const cards = gsap.utils.toArray('.cyber-project-card') as HTMLElement[];
+      if (cards.length < 2) return;
+      
+      // Pinning the section
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top top",
+          end: `+=${window.innerHeight * 2.5}`,
+          scrub: true,
+          pin: true,
+        }
+      });
+
+      // Progress bar
+      tl.to(progressRef.current, { scaleX: 1, ease: "none" }, 0);
+
+      // We make the wrapper relative so cards can be absolutely positioned
+      gsap.set(cards, { position: "absolute", top: 0, left: 0, width: "100%", opacity: 0 });
+      gsap.set(cards[0], { opacity: 1 });
+
+      cards.forEach((card, i) => {
+        if (i === 0) {
+          // First card fades out
+          tl.to(card, { y: -100, opacity: 0, duration: 1 }, 0.5);
+        } else if (i === cards.length - 1) {
+          // Last card fades in
+          tl.fromTo(card, { y: 100, opacity: 0 }, { y: 0, opacity: 1, duration: 1 }, i * 1.5 - 0.5);
+        } else {
+          // Middle cards fade in then out
+          tl.fromTo(card, { y: 100, opacity: 0 }, { y: 0, opacity: 1, duration: 1 }, i * 1.5 - 0.5);
+          tl.to(card, { y: -100, opacity: 0, duration: 1 }, i * 1.5 + 0.5);
+        }
+      });
+    });
+
+    return () => mm.revert();
+  }, { scope: containerRef, dependencies: [reducedMotion] });
 
   return (
-    <section className="relative w-full py-24 bg-bg" id="work">
-      <div className="max-w-7xl mx-auto px-6">
-        <Reveal>
-          <h2 className="text-section font-display-cyber mb-12 uppercase">04. Selected Work</h2>
-        </Reveal>
+    <section ref={containerRef} className="relative w-full py-24 bg-bg overflow-hidden" id="work">
+      <div className="max-w-7xl mx-auto px-6 h-full flex flex-col">
+        
+        <div className="flex justify-between items-end mb-12">
+          <Reveal>
+            <h2 className="text-section font-display-cyber uppercase">04. Selected Work</h2>
+          </Reveal>
+          
+          <div className="hidden lg:block w-48 h-1 bg-surface relative overflow-hidden mb-2">
+            <div ref={progressRef} className="absolute inset-y-0 left-0 bg-accent w-full origin-left scale-x-0" />
+          </div>
+        </div>
 
-        <div className="flex flex-col">
+        <div className="relative flex-1 w-full lg:h-[60vh]">
           {projects.map((project, i) => (
             <CyberProject 
               key={project.id} 
@@ -140,10 +216,10 @@ export function CyberWork() {
       <Modal isOpen={!!selectedProject} onClose={() => setSelectedProject(null)}>
         {selectedProject && (
           <div className="flex flex-col bg-bg text-fg min-h-[50vh]">
-            <div className="relative w-full h-[40vh]">
+            <motion.div layoutId={`project-img-${selectedProject.id}`} className="relative w-full h-[40vh]">
               <Image src={selectedProject.image} alt={selectedProject.title} fill className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-bg to-transparent" />
-            </div>
+            </motion.div>
             <div className="p-8 md:p-12 -mt-20 relative z-10 max-w-4xl mx-auto">
               <span className="text-accent font-mono mb-4 block">{selectedProject.type}</span>
               <h2 className="text-4xl md:text-6xl font-display-cyber font-bold mb-8 uppercase">{selectedProject.title}</h2>

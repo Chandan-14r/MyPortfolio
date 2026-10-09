@@ -14,7 +14,7 @@ export function ThemeSwitcher() {
   return (
     <button
       onClick={handleToggle}
-      className="relative flex items-center w-20 h-8 rounded-pill bg-surface border border-border p-1 outline-none focus-visible:ring-2 focus-visible:ring-accent overflow-hidden"
+      className="relative flex items-center w-32 h-8 rounded-pill bg-surface border border-border p-1 outline-none focus-visible:ring-2 focus-visible:ring-accent overflow-hidden"
       aria-label="Toggle Theme: Cyber or Series"
     >
       <div 
@@ -23,11 +23,11 @@ export function ThemeSwitcher() {
           transform: theme === "series" ? "translateX(100%)" : "translateX(0)",
         }}
       />
-      <div className="relative w-1/2 text-[10px] font-mono font-bold text-center z-10 mix-blend-difference text-bg">
-        CY
+      <div className="relative w-1/2 text-xs font-bold text-center z-10 mix-blend-difference text-bg">
+        Cyber
       </div>
-      <div className="relative w-1/2 text-[10px] font-mono font-bold text-center z-10 mix-blend-difference text-bg">
-        SR
+      <div className="relative w-1/2 text-xs font-bold text-center z-10 mix-blend-difference text-bg">
+        Series
       </div>
     </button>
   );

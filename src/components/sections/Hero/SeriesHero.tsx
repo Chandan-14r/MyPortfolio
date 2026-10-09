@@ -14,12 +14,12 @@ export function SeriesHero() {
   return (
     <section className="relative min-h-[100dvh] w-full bg-bg overflow-hidden flex flex-col justify-end pb-12 md:pb-24 pt-32" id="hero">
       {/* Background layer with Ken Burns and red backlight */}
-      <div className="absolute inset-0 z-0 select-none pointer-events-none">
+      <div className="absolute inset-0 z-0 select-none pointer-events-none overflow-hidden">
         <motion.div
           className="absolute inset-0 origin-center"
-          initial={{ scale: 1 }}
-          animate={{ scale: 1.05 }}
-          transition={{ duration: 20, ease: "linear", repeat: Infinity, repeatType: "reverse" }}
+          initial={{ scale: 1.0 }}
+          animate={{ scale: 1.15 }}
+          transition={{ duration: 30, ease: "linear", repeat: Infinity, repeatType: "reverse" }}
         >
           <Image
             src={personalInfo.photo}
@@ -31,10 +31,20 @@ export function SeriesHero() {
           />
           {/* Red back-light */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(229,9,20,0.3),transparent_60%)] mix-blend-screen" />
-          {/* Vignette & Fade */}
-          <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/80 to-bg/20" />
-          <div className="absolute inset-0 bg-gradient-to-r from-bg via-bg/50 to-transparent" />
         </motion.div>
+        
+        {/* Animated Film Grain Overlay (CSS Transform) */}
+        <div 
+          className="absolute inset-[-200%] opacity-[0.04] pointer-events-none mix-blend-screen"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            animation: "grain 1s steps(10) infinite",
+          }}
+        />
+
+        {/* Vignette & Fade */}
+        <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/80 to-bg/20 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-bg via-bg/50 to-transparent z-10" />
       </div>
 
       {/* Content Stack */}

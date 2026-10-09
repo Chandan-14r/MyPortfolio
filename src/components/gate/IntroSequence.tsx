@@ -1,89 +1,77 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useRef, useEffect } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 import { useApp } from "@/providers/AppProvider";
 import { personalInfo } from "@/lib/portfolio-data";
 
 export function IntroSequence({ onComplete }: { onComplete: () => void }) {
-  const { theme, reducedMotion } = useApp();
-  const [progress, setProgress] = useState(0);
-  const [isDone, setIsDone] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+  const { reducedMotion } = useApp();
 
-  useEffect(() => {
+  const handleSkip = () => {
+    onComplete();
+  };
+
+  useGSAP(() => {
     if (reducedMotion) {
       onComplete();
       return;
     }
 
-    const duration = 1500;
-    const interval = 30;
-    const steps = duration / interval;
-    let currentStep = 0;
-
-    const timer = setInterval(() => {
-      currentStep++;
-      setProgress(Math.min(100, Math.floor((currentStep / steps) * 100)));
-      if (currentStep >= steps) {
-        clearInterval(timer);
-        setIsDone(true);
-        setTimeout(onComplete, 300); // Wait for fade out
-      }
-    }, interval);
-
-    const handleSkip = (e: KeyboardEvent | MouseEvent) => {
-      if ((e as KeyboardEvent).key === "Escape" || e.type === "click") {
-        clearInterval(timer);
-        setIsDone(true);
+    const tl = gsap.timeline({
+      onComplete: () => {
         onComplete();
-      }
-    };
+      },
+    });
 
-    window.addEventListener("keydown", handleSkip);
-    window.addEventListener("click", handleSkip);
+    // Initial state
+    gsap.set(containerRef.current, { clipPath: "circle(0% at 50% 50%)" });
+    gsap.set(textRef.current, { y: 20, opacity: 0 });
 
-    return () => {
-      clearInterval(timer);
-      window.removeEventListener("keydown", handleSkip);
-      window.removeEventListener("click", handleSkip);
-    };
-  }, [onComplete, reducedMotion]);
+    tl.to(containerRef.current, {
+      clipPath: "circle(150% at 50% 50%)",
+      duration: 1.0,
+      ease: "power3.inOut"
+    })
+    .to(textRef.current, {
+      y: 0,
+      opacity: 1,
+      duration: 0.4,
+      ease: "power2.out"
+    }, "-=0.4")
+    .to(textRef.current, {
+      y: -20,
+      opacity: 0,
+      duration: 0.3,
+      ease: "power2.in"
+    }, "+=0.3")
+    .to(containerRef.current, {
+      opacity: 0,
+      duration: 0.3,
+      ease: "power2.inOut"
+    }, "-=0.1");
+
+  }, { scope: containerRef });
 
   if (reducedMotion) return null;
 
   return (
-    <AnimatePresence>
-      {!isDone && (
-        <motion.div
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-[150] bg-bg flex flex-col items-center justify-center p-8 cursor-pointer"
-        >
-          {theme === "cyber" ? (
-            <div className="w-full max-w-md flex flex-col items-center gap-4">
-              <div className="text-6xl font-mono font-bold text-fg">{progress}%</div>
-              <div className="w-full h-1 bg-surface overflow-hidden">
-                <motion.div 
-                  className="h-full bg-accent"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-            </div>
-          ) : (
-            <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
-              <motion.div
-                className="absolute inset-0 bg-accent/20 mix-blend-overlay"
-                initial={{ left: "-100%" }}
-                animate={{ left: "100%" }}
-                transition={{ duration: 1.5, ease: "linear" }}
-              />
-              <h1 className="text-4xl md:text-7xl font-display-series tracking-widest text-fg mix-blend-difference">
-                {personalInfo.name.toUpperCase()}
-              </h1>
-            </div>
-          )}
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <div 
+      ref={containerRef}
+      className="fixed inset-0 z-[150] bg-fg text-bg flex items-center justify-center cursor-pointer pointer-events-auto"
+      onClick={handleSkip}
+    >
+      <div className="absolute top-8 right-8 text-xs font-mono opacity-50 uppercase tracking-widest">
+        Click to Skip
+      </div>
+      
+      <div ref={textRef} className="text-4xl md:text-6xl font-display-cyber uppercase font-bold tracking-tighter mix-blend-difference text-bg">
+        {personalInfo.name.split(" ")[0]} 
+        <span className="opacity-50">/SYSTEM</span>
+      </div>
+    </div>
   );
 }
