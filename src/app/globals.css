@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root[data-theme="cyber"] {
+  --bg: #050505;
+  --bg-2: #0F0F0F;
+  --surface: rgba(255, 255, 255, 0.04);
+  --border: rgba(255, 255, 255, 0.08);
+  --fg: #FFFFFF;
+  --muted: #8E8E93;
+  --accent: #CCFF00;
+  --on-accent: #000000;
+  --radius-card: 4px;
+  --radius-pill: 999px;
+  --glow: 0 0 60px rgba(204, 255, 0, 0.25);
+}
+
+:root[data-theme="series"] {
+  --bg: #141414;
+  --bg-2: #1B1B1B;
+  --surface: rgba(255, 255, 255, 0.05);
+  --border: rgba(255, 255, 255, 0.10);
+  --fg: #FFFFFF;
+  --muted: #AAAAAA;
+  --accent: #E50914;
+  --on-accent: #FFFFFF;
+  --match: #46D369;
+  --radius-card: 6px;
+  --radius-pill: 999px;
+  --glow: 0 0 80px rgba(229, 9, 20, 0.35);
+}
+
+@layer base {
+  body {
+    background-color: var(--bg);
+    color: var(--fg);
+    @apply antialiased;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+}
+
+/* ::view-transition-old(root), ::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+} */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Static noise overlay for Cyber */
+.cyber-noise {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
